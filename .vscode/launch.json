@@ -1,0 +1,50 @@
+{
+  "configurations": [
+    {
+      "console": "integratedTerminal",
+      "name": "Python: Current File",
+      "program": "${file}",
+      "request": "launch",
+      "type": "debugpy"
+    },
+    {
+      "args": [
+        "--task",
+        "Template-Expt-v0",
+        "--num_envs",
+        "4096",
+        "--headless"
+      ],
+      "console": "integratedTerminal",
+      "name": "Python: Train Template-Expt-v0 with rsl_rl (PPO)",
+      "program": "${workspaceFolder}/scripts/rsl_rl/train.py",
+      "request": "launch",
+      "type": "debugpy"
+    },
+    {
+      "args": [
+        "--task",
+        "Template-Expt-v0",
+        "--num_envs",
+        "32"
+      ],
+      "console": "integratedTerminal",
+      "name": "Python: Play Template-Expt-v0 with rsl_rl (PPO)",
+      "program": "${workspaceFolder}/scripts/rsl_rl/play.py",
+      "request": "launch",
+      "type": "debugpy"
+    },
+    {
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "name": "Python: Debug Tests",
+      "program": "${file}",
+      "purpose": [
+        "debug-test"
+      ],
+      "request": "launch",
+      "type": "debugpy"
+    }
+  ],
+  "version": "0.2.0"
+}

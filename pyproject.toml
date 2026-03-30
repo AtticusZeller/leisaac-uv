@@ -1,0 +1,119 @@
+[project]
+name = "isaaclab-uv"
+description = "isaaclab template with uv"
+readme = "README.md"
+requires-python = ">=3.11,<3.12"
+license = { file = "LICENSE" }
+authors = [{ name = "A.J.Zeller", email = "hello@atticux.me" }]
+maintainers = [{ name = "A.J.Zeller", email = "hello@atticux.me" }]
+dynamic = ["version"] # https://hatch.pypa.io/latest/config/metadata/#version
+dependencies = [
+    "isaacsim[all,extscache]==5.1.0.0", # https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/pip_installation.html#installing-dependencies
+    "torch==2.7.0",
+    "torchvision==0.22.0",
+    "isaaclab",
+    "isaaclab-assets",
+    "isaaclab-mimic",
+    "isaaclab-rl",
+    "isaaclab-tasks",
+    "typer>=0.15.1",
+    "wandb>=0.23.1",
+]
+
+[project.optional-dependencies]
+rl = ["isaaclab-mimic[all]", "isaaclab-rl[all]"]
+# optional deps for package installation
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6.3",                   # Linting
+    "mypy>=1.11.2",                  # Type checking
+    "pre-commit>=3.8.0",             # Pre-commit hooks
+    "pytest>=8.3.2",                 # Testing framework
+    "pytest-sugar>=1.0.0",           # Nicer pytest output
+    "types-pyyaml>=6.0.12.20241230",
+    "git-cliff>=2.8.0",
+]
+
+[tool.uv]
+environments = [
+    "sys_platform == 'linux'",
+] # https://docs.astral.sh/uv/concepts/projects/config/#limited-resolution-environments
+override-dependencies = ["pywin32==306; sys_platform == 'win32'"]
+# FIX: https://github.com/isaac-sim/IsaacLab/issues/3884
+# 1. https://docs.astral.sh/uv/reference/settings/#override-dependencies
+# 2. https://docs.astral.sh/uv/concepts/projects/dependencies/#platform-specific-dependencies
+
+[tool.uv.sources]
+# pip install torch==2.7.0 torchvision==0.22.0 --index-url https://download.pytorch.org/whl/cu128
+torch       = [{ index = "pytorch-cu128" }]
+torchvision = [{ index = "pytorch-cu128" }]
+# pip install "isaacsim[all,extscache]==5.1.0.0" --extra-index-url https://pypi.nvidia.com
+isaacsim        = [{ index = "nvidia" }]
+isaaclab        = { path = "isaaclab/source/isaaclab", editable = true }
+isaaclab-assets = { path = "isaaclab/source/isaaclab_assets", editable = true }
+isaaclab-tasks  = { path = "isaaclab/source/isaaclab_tasks", editable = true }
+isaaclab-rl     = { path = "isaaclab/source/isaaclab_rl", editable = true }
+isaaclab-mimic  = { path = "isaaclab/source/isaaclab_mimic", editable = true }
+
+[[tool.uv.index]]
+name     = "pytorch-cu128"
+url      = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[[tool.uv.index]]
+name     = "nvidia"
+url      = "https://pypi.nvidia.com"
+explicit = true
+
+## Test
+[tool.mypy]
+strict  = false
+exclude = ["venv", ".venv", "data"] # ignore dataset preprocessing type checking
+
+[tool.pytest.ini_options]
+# Set additional command line options for pytest=
+# -r= show extra test summary info
+# X= show extra info on xfailed tests
+# s= don't capture stdout (allow print statements)
+# --strict-config= any warnings about configuration are treated as errors
+# --strict-markers= treat unregistered markers as errors
+addopts        = "-rXs --strict-config --strict-markers"
+xfail_strict   = true                                    # Treat tests that are marked as xfail but pass as test failures
+filterwarnings = ["error"]                               # Treat all warnings as errors
+pythonpath     = "src/"
+
+## Linter and formatter
+[tool.ruff]
+# cover and extend the default config in https=//docs.astral.sh/ruff/configuration/
+extend-exclude = [""]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+
+isort = { combine-as-imports = true, split-on-trailing-comma = false }
+
+# Avoid trying to fix flake8-bugbear (`B`) violations.
+unfixable = ["B"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy" # Accepts: "google", "numpy", or "pep257".
+
+[tool.ruff.format]
+docstring-code-format     = true
+skip-magic-trailing-comma = true
+
+# Reference
+# 1. https=//github.com/Kludex/python-template/blob/main/template/%7B%7B%20project_slug%20%7D%7D/pyproject.toml.jinja
+# 2. https=//github.com/fastapi/full-stack-fastapi-template/blob/master/backend/pyproject.toml
+# 3. https=//github.com/pydantic/logfire
+# 4. https=//coverage.readthedocs.io/en/latest/index.html
